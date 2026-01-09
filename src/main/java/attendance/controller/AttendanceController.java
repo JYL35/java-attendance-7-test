@@ -5,6 +5,7 @@ import attendance.util.FileReaders;
 import attendance.util.Validator;
 import attendance.view.InputView;
 import attendance.view.OutputView;
+import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -30,13 +31,14 @@ public class AttendanceController {
                 }
             } catch (IllegalArgumentException e) {
                 outputView.printError(e);
-                break;
+                throw new IllegalArgumentException(e);
             }
         }
     }
 
     private AttendanceDTO createAttendanceDTO() {
-        LocalDateTime dateTime = LocalDateTime.of(2024, 12, 13, 13, 0);
+        // LocalDateTime dateTime = LocalDateTime.of(2024, 12, 13, 13, 0);
+        LocalDateTime dateTime = DateTimes.now();
         LocalTime campusStartTime = LocalTime.of(8, 0);
         LocalTime campusEndTime = LocalTime.of(23, 0);
         Map<String, List<LocalDateTime>> attendances = FileReaders.readFile();
@@ -44,6 +46,7 @@ public class AttendanceController {
     }
 
     private void startOptionOne(AttendanceDTO attendanceDTO) {
+        Validator.validateHoliday(attendanceDTO.dateTime());
         String nickName = inputView.readInputNickname();
         Validator.validateNickName(nickName, attendanceDTO.attendances().keySet());
         String inputArrivalTime = inputView.readInputArrivalTime();
@@ -51,7 +54,7 @@ public class AttendanceController {
     }
 
     private String readOption(LocalDateTime dateTime) {
-        String inputOption = inputView.readInputOption(dateTime.getMonthValue(), dateTime.getDayOfMonth());
+        String inputOption = inputView.readInputOption(dateTime.getMonthValue(), dateTime.getDayOfMonth(), dateTime.getDayOfWeek());
         Validator.validateOption(inputOption);
         return inputOption;
     }

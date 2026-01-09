@@ -5,7 +5,9 @@ import attendance.dto.AttendanceDTO;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.TextStyle;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class Validator {
@@ -27,12 +29,11 @@ public class Validator {
         validateHoliday(attendanceDTO.dateTime());
         LocalTime arrivalTime = Parser.parseLocalTime(input);
         validateRangeOfTime(arrivalTime, attendanceDTO);
-
+        validateContainsAttendance(nickname, attendanceDTO);
         return arrivalTime;
     }
 
-    private static void validateContainsAttendance(LocalTime arrivalTime, String nickname,
-                                                   AttendanceDTO attendanceDTO) {
+    private static void validateContainsAttendance(String nickname, AttendanceDTO attendanceDTO) {
         LocalDateTime localDateTime = attendanceDTO.dateTime();
         int month = localDateTime.getMonthValue();
         int day = localDateTime.getDayOfMonth();
@@ -47,14 +48,14 @@ public class Validator {
 
     }
 
-    private static void validateHoliday(LocalDateTime localDateTime) {
+    public static void validateHoliday(LocalDateTime localDateTime) {
         int month = localDateTime.getMonthValue();
         int day = localDateTime.getDayOfMonth();
         DayOfWeek dayOfWeek = localDateTime.getDayOfWeek();
-        boolean publicHoliday = (month == 12 || day == 25);
+        boolean publicHoliday = (month == 12 && day == 25);
 
         if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY || publicHoliday) {
-            String today = String.format("%d월 %d일 %s", month, day, dayOfWeek);
+            String today = String.format("%d월 %d일 %s", month, day, dayOfWeek.getDisplayName(TextStyle.FULL, Locale.KOREAN));
             throw new IllegalArgumentException(ErrorMessage.ARRIVAL_TIME_IS_HOLIDAY.getCreatedMessage(today));
         }
     }

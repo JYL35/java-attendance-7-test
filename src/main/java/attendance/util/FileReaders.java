@@ -10,11 +10,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class FileReaders {
     private static final String PATH = "D:\\workplace\\woowacourse\\final coding test\\practice\\"
             + "java-attendance-7-test\\src\\main\\resources\\attendances.csv";
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public static Map<String, List<LocalDateTime>> readFile() {
         File file = new File(PATH);
@@ -37,7 +38,8 @@ public class FileReaders {
         while ((line = bufferedReader.readLine()) != null) {
             String[] type = line.split(",");
             String nickName = type[0];
-            LocalDateTime dateTime = LocalDateTime.parse(type[1], formatter);
+            if (Pattern.matches("^[a-zA-Z]*$", nickName)) continue;
+            LocalDateTime dateTime = LocalDateTime.parse(type[1], FORMATTER);
             if (!attendances.getOrDefault(nickName, new ArrayList<>()).isEmpty()) {
                 attendances.get(nickName).add(dateTime);
                 continue;
