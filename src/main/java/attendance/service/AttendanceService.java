@@ -19,18 +19,18 @@ public class AttendanceService {
     }
 
     public CrewAttendance createCrewAttendance(AttendanceDTO attendanceDTO, String nickname) {
-        return createAttendanceResult(attendanceDTO.operatingHours().getStartTime(),
-                attendanceDTO.attendances().get(nickname));
+        return createAttendanceResult(attendanceDTO.attendances().get(nickname));
 
     }
 
-    private CrewAttendance createAttendanceResult(LocalTime campusStartTime, List<LocalDateTime> localDateTimes) {
+    private CrewAttendance createAttendanceResult(List<LocalDateTime> localDateTimes) {
         List<AttendanceResult> attendanceResults = new ArrayList<>();
         int attendanceCount = 0;
         int lateCount = 0;
         int absenceCount = 0;
         for (LocalDateTime localDateTime : localDateTimes) {
-            String status = checkAttendanceStatus(campusStartTime, localDateTime.toLocalTime());
+            String status = checkAttendanceStatus(OperatingHours.findOperatingHours(localDateTime.getDayOfWeek()).getStartTime(),
+                    localDateTime.toLocalTime());
             if (status.equals("결석")) absenceCount++;
             if (status.equals("지각")) lateCount++;
             if (status.equals("출석")) attendanceCount++;
