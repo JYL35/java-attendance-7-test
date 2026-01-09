@@ -1,6 +1,10 @@
 package attendance.util;
 
 import attendance.constant.ErrorMessage;
+import attendance.dto.AttendanceDTO;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
@@ -15,6 +19,50 @@ public class Validator {
     public static void validateNickName(String input, Set<String> nicknames) {
         validateEmpty(input);
         validateContainsNickname(input, nicknames);
+    }
+
+    public static LocalTime validateArrivalTime(String input, String nickname,
+                                                AttendanceDTO attendanceDTO) {
+        validateEmpty(input);
+        validateHoliday(attendanceDTO.dateTime());
+        LocalTime arrivalTime = Parser.parseLocalTime(input);
+        validateRangeOfTime(arrivalTime, attendanceDTO);
+
+        return arrivalTime;
+    }
+
+    private static void validateContainsAttendance(LocalTime arrivalTime, String nickname,
+                                                   AttendanceDTO attendanceDTO) {
+        LocalDateTime localDateTime = attendanceDTO.dateTime();
+        int month = localDateTime.getMonthValue();
+        int day = localDateTime.getDayOfMonth();
+
+        for (LocalDateTime dateTime : attendanceDTO.attendances().get(nickname)) {
+            int dateMonth = dateTime.getMonthValue();
+            int dateDay = dateTime.getDayOfMonth();
+            if (month == dateMonth && day == dateDay) {
+                throw new IllegalArgumentException(ErrorMessage.ALREADY_IN_ATTENDANCE.getMessage());
+            }
+        }
+
+    }
+
+    private static void validateHoliday(LocalDateTime localDateTime) {
+        int month = localDateTime.getMonthValue();
+        int day = localDateTime.getDayOfMonth();
+        DayOfWeek dayOfWeek = localDateTime.getDayOfWeek();
+        boolean publicHoliday = (month == 12 || day == 25);
+
+        if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY || publicHoliday) {
+            String today = String.format("%d월 %d일 %s", month, day, dayOfWeek);
+            throw new IllegalArgumentException(ErrorMessage.ARRIVAL_TIME_IS_HOLIDAY.getCreatedMessage(today));
+        }
+    }
+
+    private static void validateRangeOfTime(LocalTime arrivalTime, AttendanceDTO attendanceDTO) {
+        if (attendanceDTO.campusStartTime().isAfter(arrivalTime) || attendanceDTO.campusEndTime().isAfter(arrivalTime)) {
+            throw new IllegalArgumentException(ErrorMessage.ARRIVAL_TIME_OUT_OF_RANGE.getMessage());
+        }
     }
 
     private static void validateContainsNickname(String input, Set<String> nicknames) {
