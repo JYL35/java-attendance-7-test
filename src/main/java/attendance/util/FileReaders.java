@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,8 +14,9 @@ import java.util.Map;
 public class FileReaders {
     private static final String PATH = "D:\\workplace\\woowacourse\\final coding test\\practice\\"
             + "java-attendance-7-test\\src\\main\\resources\\attendances.csv";
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    public static Map<String, List<String>> readFile() {
+    public static Map<String, List<LocalDateTime>> readFile() {
         File file = new File(PATH);
 
         if (!file.isFile() || !file.canRead()) {
@@ -27,19 +30,19 @@ public class FileReaders {
         }
     }
 
-    private static Map<String, List<String>> fileToList(BufferedReader bufferedReader) throws IOException {
-        Map<String, List<String>> attendances = new HashMap<>();
+    private static Map<String, List<LocalDateTime>> fileToList(BufferedReader bufferedReader) throws IOException {
+        Map<String, List<LocalDateTime>> attendances = new HashMap<>();
         String line;
 
         while ((line = bufferedReader.readLine()) != null) {
             String[] type = line.split(",");
             String nickName = type[0];
-            String dateTime = type[1];
+            LocalDateTime dateTime = LocalDateTime.parse(type[1], formatter);
             if (!attendances.getOrDefault(nickName, new ArrayList<>()).isEmpty()) {
                 attendances.get(nickName).add(dateTime);
                 continue;
             }
-            List<String> temp = new ArrayList<>();
+            List<LocalDateTime> temp = new ArrayList<>();
             temp.add(dateTime);
             attendances.put(nickName, temp);
         }
