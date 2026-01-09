@@ -42,7 +42,7 @@ class ApplicationTest extends NsTest {
 
     @Test
     void 출석_확인_기능_테스트() {
-        assertNowTest(git
+        assertNowTest(
             () -> {
                 runException("1", "짱수", "08:00");
                 assertThat(output()).contains("12월 13일 금요일 08:00 (출석)");
