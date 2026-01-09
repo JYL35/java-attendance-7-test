@@ -1,7 +1,9 @@
 package attendance.controller;
 
+import attendance.domain.OperatingHours;
 import attendance.dto.AttendanceDTO;
 import attendance.dto.AttendanceResult;
+import attendance.dto.CrewAttendance;
 import attendance.service.AttendanceService;
 import attendance.util.FileReaders;
 import attendance.util.Validator;
@@ -33,6 +35,8 @@ public class AttendanceController {
                 if (option.equals("1")) {
                     startOptionOne(attendanceDTO);
                 }
+
+                if (option.equals("2")) startOptionTwo(attendanceDTO);
             } catch (IllegalArgumentException e) {
                 outputView.printError(e);
                 throw new IllegalArgumentException(e);
@@ -40,13 +44,19 @@ public class AttendanceController {
         }
     }
 
+    private void startOptionTwo(AttendanceDTO attendanceDTO) {
+        Validator.validateHoliday(attendanceDTO.dateTime());
+        String nickName = inputView.readInputNickname();
+        Validator.validateNickName(nickName, attendanceDTO.attendances().keySet());
+        CrewAttendance crewAttendance = attendanceService.createCrewAttendance(attendanceDTO, nickName);
+    }
+
     private AttendanceDTO createAttendanceDTO() {
         // LocalDateTime dateTime = LocalDateTime.of(2024, 12, 13, 13, 0);
         LocalDateTime dateTime = DateTimes.now();
-        LocalTime campusStartTime = LocalTime.of(8, 0);
-        LocalTime campusEndTime = LocalTime.of(23, 0);
+        OperatingHours operatingHours = OperatingHours.findOperatingHours(dateTime.getDayOfWeek());
         Map<String, List<LocalDateTime>> attendances = FileReaders.readFile();
-        return new AttendanceDTO(dateTime, campusStartTime, campusEndTime, attendances);
+        return new AttendanceDTO(dateTime, operatingHours, attendances);
     }
 
     private void startOptionOne(AttendanceDTO attendanceDTO) {

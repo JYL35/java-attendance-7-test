@@ -60,7 +60,7 @@ public class Validator {
     }
 
     private static void validateRangeOfTime(LocalTime arrivalTime, AttendanceDTO attendanceDTO) {
-        if (arrivalTime.isAfter(attendanceDTO.campusEndTime())) {
+        if (arrivalTime.isAfter(attendanceDTO.operatingHours().getEndTime())) {
             throw new IllegalArgumentException(ErrorMessage.ARRIVAL_TIME_OUT_OF_RANGE.getMessage());
         }
     }
