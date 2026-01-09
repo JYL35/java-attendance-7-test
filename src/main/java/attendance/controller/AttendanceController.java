@@ -49,6 +49,7 @@ public class AttendanceController {
         String nickName = inputView.readInputNickname();
         Validator.validateNickName(nickName, attendanceDTO.attendances().keySet());
         CrewAttendance crewAttendance = attendanceService.createCrewAttendance(attendanceDTO, nickName);
+        outputView.printCrewAttendance(crewAttendance);
     }
 
     private AttendanceDTO createAttendanceDTO() {
