@@ -26,7 +26,6 @@ public class Validator {
     public static LocalTime validateArrivalTime(String input, String nickname,
                                                 AttendanceDTO attendanceDTO) {
         validateEmpty(input);
-        validateHoliday(attendanceDTO.dateTime());
         LocalTime arrivalTime = Parser.parseLocalTime(input);
         validateRangeOfTime(arrivalTime, attendanceDTO);
         validateContainsAttendance(nickname, attendanceDTO);
@@ -61,7 +60,7 @@ public class Validator {
     }
 
     private static void validateRangeOfTime(LocalTime arrivalTime, AttendanceDTO attendanceDTO) {
-        if (attendanceDTO.campusStartTime().isAfter(arrivalTime) || attendanceDTO.campusEndTime().isAfter(arrivalTime)) {
+        if (arrivalTime.isAfter(attendanceDTO.campusEndTime())) {
             throw new IllegalArgumentException(ErrorMessage.ARRIVAL_TIME_OUT_OF_RANGE.getMessage());
         }
     }
@@ -80,14 +79,6 @@ public class Validator {
 
     private static void validateContains(String input) {
         if (!OPTIONS.contains(input)) {
-            throw new IllegalArgumentException(ErrorMessage.INVALID_FORMAT.getMessage());
-        }
-    }
-
-    private static int validateNumber(String input) {
-        try {
-            return Integer.parseInt(input.strip());
-        } catch (RuntimeException e) {
             throw new IllegalArgumentException(ErrorMessage.INVALID_FORMAT.getMessage());
         }
     }

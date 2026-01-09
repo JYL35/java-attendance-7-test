@@ -11,5 +11,7 @@ public record AttendanceDTO(
         LocalTime campusEndTime,
         Map<String, List<LocalDateTime>> attendances
 ) {
-
+    public void putAttendance(String nickName, LocalDateTime localDateTime) {
+        attendances.get(nickName).add(localDateTime);
+    }
 }

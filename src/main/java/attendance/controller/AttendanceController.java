@@ -1,6 +1,8 @@
 package attendance.controller;
 
 import attendance.dto.AttendanceDTO;
+import attendance.dto.AttendanceResult;
+import attendance.service.AttendanceService;
 import attendance.util.FileReaders;
 import attendance.util.Validator;
 import attendance.view.InputView;
@@ -13,10 +15,12 @@ import java.util.Map;
 
 public class AttendanceController {
 
+    private final AttendanceService attendanceService;
     private final InputView inputView;
     private final OutputView outputView;
 
-    public AttendanceController(InputView inputView, OutputView outputView) {
+    public AttendanceController(AttendanceService attendanceService, InputView inputView, OutputView outputView) {
+        this.attendanceService = attendanceService;
         this.inputView = inputView;
         this.outputView = outputView;
     }
@@ -51,6 +55,8 @@ public class AttendanceController {
         Validator.validateNickName(nickName, attendanceDTO.attendances().keySet());
         String inputArrivalTime = inputView.readInputArrivalTime();
         LocalTime arrivalTime = Validator.validateArrivalTime(inputArrivalTime, nickName, attendanceDTO);
+        AttendanceResult attendanceResult = attendanceService.addAttendance(attendanceDTO, nickName, arrivalTime);
+        outputView.printAttendance(attendanceResult);
     }
 
     private String readOption(LocalDateTime dateTime) {
